@@ -2,19 +2,19 @@
 
 # Celery
 
-![1](/home/www/Github/owner/1.jpg)
+![1](pic/1.jpg)
 
 
 
-![8](/home/www/Github/owner/8.jpg)
+![8](pic/8.jpg)
 
 
 
-![9](/home/www/Github/owner/9.jpg)
+![9](pic/9.jpg)
 
 
 
-![10](/home/www/Github/owner/10.jpg)
+![10](pic/10.jpg)
 
 
 
@@ -24,49 +24,49 @@
 
 2.  worker 从broker中消费消息，并将结果存储在result_end中
 
-![11](/home/www/Github/owner/11.jpg)
+![11](pic/11.jpg)
 
 
 
-![12](/home/www/Github/owner/12.jpg)
+![12](pic/12.jpg)
 
 
 
-![13](/home/www/Github/owner/13.jpg)
+![13](pic/13.jpg)
 
 
 
-![14](/home/www/Github/owner/14.jpg)
+![14](pic/14.jpg)
 
-![15](/home/www/Github/owner/15.jpg)
+![15](pic/15.jpg)
 
 - result 建议使用非关系型数据库
 
-![16](/home/www/Github/owner/16.jpg)
+![16](pic/16.jpg)
 
 
 
-![1整体过程](/home/www/Downloads/1整体过程.png)
+![1整体过程](pic/1整体过程.png)
 
 # Use
 
-![27](/home/www/Github/owner/27.jpg)
+![27](pic/27.jpg)
 
 
 
-![31](/home/www/Github/owner/31.jpg)
+![31](pic/31.jpg)
 
-![33](/home/www/Github/owner/33.jpg)
+![33](pic/33.jpg)
 
-![35](/home/www/Github/owner/35.jpg)
+![35](pic/35.jpg)
 
-![37](/home/www/Github/owner/37.jpg)
+![37](pic/37.jpg)
 
-![42](/home/www/Github/owner/42.jpg)
+![42](pic/42.jpg)
 
 # Celery colony
 
-![manyM](/home/www/Downloads/manyM.png)
+![manyM](pic/manyM.png)
 
 - Celery Worker：
   在2 台server上部署worker，其中：
@@ -76,4 +76,4 @@
 - Rabbit MQ：在server3上启动
 - Redis：在localhost启动
 
-![all](/home/www/Downloads/all.png)
+![all](pic/all.png)
