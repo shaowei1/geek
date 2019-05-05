@@ -14,11 +14,12 @@
 
 ![9](pic/9.jpg)
 
-- 给用户发送验证发送邮件
+- 给用户发送验证邮件
 - 发送短信验证码
+- 解压大文件
 - 定时任务，比如每天定时统计网站的注册人数，也可以交给Celery周期性的处理。
 
-
+- 页面静态化
 
 ![10](pic/10.jpg)
 
@@ -114,7 +115,6 @@ result_serializer = 'json'
 
 broker_url = "redis://192.168.1.2"
 result_backend = "mongodb://192.168.1.2/celery"
-timezone = "Asia/Shanghai"
 
 imports = (
     'celery_app.task1',
@@ -129,7 +129,7 @@ beat_schedule = {
     },
     'add-every-10-seconds': {
         'task': 'celery_app.task2.add',
-         'schedule': crontab(hour=9, minute=10)
+         #'schedule': crontab(hour=9, minute=10)
         'schedule': timedelta(seconds=10),
         'args': (23, 54)
     }
