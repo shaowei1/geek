@@ -1,5 +1,7 @@
 
 
+
+
 # Celery
 
 ![1](pic/1.jpg)
@@ -11,6 +13,10 @@
 
 
 ![9](pic/9.jpg)
+
+- 给用户发送验证发送邮件
+- 发送短信验证码
+- 定时任务，比如每天定时统计网站的注册人数，也可以交给Celery周期性的处理。
 
 
 
@@ -48,32 +54,159 @@
 
 ![1整体过程](pic/1整体过程.png)
 
-# Use
-
-![27](pic/27.jpg)
+# 代码结构
 
 
 
-![31](pic/31.jpg)
+![jiegou](pic/jiegou.png)
 
-![33](pic/33.jpg)
+## main.py
 
-![35](pic/35.jpg)
+```python
+from celery import Celery
+from kombu import Queue
+import time
 
-![37](pic/37.jpg)
 
-![42](pic/42.jpg)
+app = Celery('tasks', backend='redis://127.0.0.1:6379/6')
+app.config_from_object('celeryconfig')
 
-# Celery colony
+class CallbackTask(Task):
+    def on_success(self, retval, task_id, args, kwargs):
+        print "----%s is done" % task_id
 
-![manyM](pic/manyM.png)
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        pass
+```
 
-- Celery Worker：
-  在2 台server上部署worker，其中：
-  server1上的worker处理queue priority_low和priority_high上的事件
-  server2上的worker只处理priority_high上的事件
-- Celery Client：在应用中调用
-- Rabbit MQ：在server3上启动
-- Redis：在localhost启动
+## task1.py
+
+```python
+from celery_app import app
+
+@app.task(base=CallbackTask) 
+def add(x, y):
+    return x + y
+```
+
+
+
+## task2.py
+
+```python
+from celery_app import app
+
+@app.task(base=CallbackTask) 
+def multiply(x,y):
+    return x * y
+
+```
+
+## celeryconfig.py
+
+```python
+from celery.schedules import crontab
+from datetime import timedelta
+from kombu import Queue
+from kombu import Exchange
+
+result_serializer = 'json'
+
+broker_url = "redis://192.168.1.2"
+result_backend = "mongodb://192.168.1.2/celery"
+timezone = "Asia/Shanghai"
+
+imports = (
+    'celery_app.task1',
+    'celery_app.task2'
+)
+
+beat_schedule = {
+    'add-every-20-seconds': {
+        'task': 'celery_app.task1.multiply',
+        'schedule': timedelta(seconds=20),
+        'args': (5, 7)
+    },
+    'add-every-10-seconds': {
+        'task': 'celery_app.task2.add',
+         'schedule': crontab(hour=9, minute=10)
+        'schedule': timedelta(seconds=10),
+        'args': (23, 54)
+    }
+}
+
+task_queues = (
+    Queue('default', exchange=Exchange('default'), routing_key='default'),
+    Queue('priority_high', exchange=Exchange('priority_high'), routing_key='priority_high'),
+    Queue('priority_low', exchange=Exchange('priority_low'), routing_key='priority_low'),
+)
+
+task_routes = {
+    'celery_app.task1.multiply': {'queue': 'priority_high', 'routing_key': 'priority_high'},
+    'celery_app.task2.add': {'queue': 'priority_low', 'routing_key': 'priority_low'},
+}
+
+# 每分钟最大速率
+# task_annotations = {
+#     'task2.multiply': {'rate_limit': '10/m'}
+# }
+
+```
+
+
+
+# Deploy
 
 ![all](pic/all.png)
+
+## Celery Server and Client
+
+### Worker on Server1
+
+消费priority_high事件
+
+```bash
+celery -A  celery_app.main worker -Q priority_high --concurrency=4 -l info -E -n worker1@%h
+```
+
+### Worker on Server2
+
+消费priority_high和priority_low事件
+
+```bash
+celery -A celery_app.main worker -Q priority_high,priority_low --concurrency=4 -l info -E -n worker2@%h
+```
+
+### Client    test.py
+
+```python
+from celery_app.task1 import add
+from celery_app.task1 import multiply
+
+for i in range(50):
+    add.delay(2, 2)
+    multiply.delay(10,10)
+```
+
+![eleyrun](pic/0save.png)
+
+
+
+# 监控
+
+```python
+pip install flower
+celery flower --broker=amqp://guest:guest@192.168.xx.xxx:5672//
+```
+
+```
+http://server2_ip:5555
+```
+
+![](pic/jinkong0.png)
+
+
+
+
+
+![](pic/jinkong1.png)
