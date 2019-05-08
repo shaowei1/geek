@@ -47,8 +47,6 @@
 
 ![15](pic/15.jpg)
 
-- result 建议使用非关系型数据库
-
 ![16](pic/16.jpg)
 
 
@@ -151,6 +149,8 @@ task_routes = {
 #     'task2.multiply': {'rate_limit': '10/m'}
 # }
 
+# 内存泄露
+CELERYD_MAX_TASKS_PER_CHILD = 40 # 每个worker执行多少个任务就会死掉
 ```
 
 
@@ -160,6 +160,12 @@ task_routes = {
 ![all](pic/all.png)
 
 ## Celery Server and Client
+
+### 启动多个不同的worker 执行不同的任务
+
+- 在同一台机器上,不同优先级的任务启动不同的worker去执行，有利于保证高优先级的任务得到更多的系统资源
+  - 比如: 分开实时任务和定时任务
+  - 分开执行频率高的任务和执行频率低的任务
 
 ### Worker on Server1
 
